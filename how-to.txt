@@ -25,11 +25,13 @@ git push -u origin main
 
 
 
-https://www.youtube.com/watch?v=K3UL2i_mffg&list=PLq3etM-zISakzZUhyxMUGHZCcCfIcJ_Tl&index=1
-
 to run all tests 
 
 go test ./...
 
 
 curl -X GET localhost:8080/news -v
+
+
+Lessons finished
+https://www.youtube.com/watch?v=K3UL2i_mffg&list=PLq3etM-zISakzZUhyxMUGHZCcCfIcJ_Tl&index=1

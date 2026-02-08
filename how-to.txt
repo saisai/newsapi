@@ -1,0 +1,28 @@
+
+
+go test -test.fullpath=true -timeout 30s -run ^Test_PostNews$ codeandlearn/buildrestapi/internal/handler
+
+
+
+…or create a new repository on the command line
+
+echo "# newsapi" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/saisai/newsapi.git
+git push -u origin main
+
+
+
+
+…or push an existing repository from the command line
+
+git remote add origin https://github.com/saisai/newsapi.git
+git branch -M main
+git push -u origin main
+
+
+
+https://www.youtube.com/watch?v=K3UL2i_mffg&list=PLq3etM-zISakzZUhyxMUGHZCcCfIcJ_Tl&index=1

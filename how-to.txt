@@ -30,3 +30,6 @@ https://www.youtube.com/watch?v=K3UL2i_mffg&list=PLq3etM-zISakzZUhyxMUGHZCcCfIcJ
 to run all tests 
 
 go test ./...
+
+
+curl -X GET localhost:8080/news -v

@@ -7,11 +7,11 @@ import (
 )
 
 // New creates a new router with all the handlers configured.
-func New() *http.ServeMux {
+func New(ns handler.NewsPostReqBody) *http.ServeMux {
 	r := http.NewServeMux()
 
 	// Create news routeu.
-	r.HandleFunc("POST /news", handler.PostNews())
+	r.HandleFunc("POST /news", handler.PostNews(ns))
 	// Get all news
 	r.HandleFunc("GET /news", handler.GetAllNews())
 	// Get news by ID.

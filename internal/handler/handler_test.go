@@ -1,21 +1,73 @@
 package handler_test
 
 import (
+	"errors"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/saisai/newsapi/internal/handler"
 )
 
 func Test_PostNews(t *testing.T) {
 	testCases := []struct {
 		name           string
+		body           io.Reader
+		store          handler.NewsStorer
 		expectedStatus int
 	}{
 		{
-			name:           "not implemented",
-			expectedStatus: http.StatusNotImplemented,
+			name:           "invalid request body json",
+			body:           strings.NewReader(`{`),
+			store:          mockNewsStore{},
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name: "invalid request body",
+			body: strings.NewReader(`
+			{ 
+			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
+			"author": "code learn", 
+			"title": "first news", 
+			"summary": "first news post", 
+			"created_at": "2024-04-07T05:13:27+00:00", 
+			"source": "https://example.com"
+			}`),
+			store:          mockNewsStore{},
+			expectedStatus: http.StatusBadRequest,
+		},
+		{
+			name: "db error",
+			body: strings.NewReader(`
+			{ 
+			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
+			"author": "code learn", 
+			"title": "first news", 
+			"summary": "first news post", 
+			"created_at": "2024-04-07T05:13:27+00:00", 
+			"source": "https://example.com"
+			"tags": ["politics"]
+			}`),
+			store:          mockNewsStore{errState: true},
+			expectedStatus: http.StatusInternalServerError,
+		},
+		{
+			name: "success",
+			body: strings.NewReader(`
+			{ 
+			"id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", 
+			"author": "code learn", 
+			"title": "first news", 
+			"summary": "first news post", 
+			"created_at": "2024-04-07T05:13:27+00:00", 
+			"source": "https://example.com"
+			"tags": ["politics"]
+			}`),
+			store:          mockNewsStore{},
+			expectedStatus: http.StatusCreated,
 		},
 	}
 
@@ -23,10 +75,10 @@ func Test_PostNews(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			//Arrange
 			w := httptest.NewRecorder()
-			r := httptest.NewRequest(http.MethodPost, "/", nil)
+			r := httptest.NewRequest(http.MethodPost, "/", tc.body)
 
 			// Act
-			handler.PostNews()(w, r)
+			handler.PostNews(tc.store)(w, r)
 
 			// Assert
 			if w.Result().StatusCode != tc.expectedStatus {
@@ -146,4 +198,36 @@ func Test_DeleteNewsByID(t *testing.T) {
 			}
 		})
 	}
+}
+
+type mockNewsStore struct {
+	errState bool
+}
+
+func (m mockNewsStore) Create(_ handler.NewsPostReqBody) (news handler.NewsPostReqBody, err error) {
+	if m.errState {
+		return news, errors.New("some error")
+	}
+	return news, nil
+}
+
+func (m mockNewsStore) FindByID(_ uuid.UUID) (news handler.NewsPostReqBody, err error) {
+	if m.errState {
+		return news, errors.New("some error")
+	}
+	return news, nil
+}
+
+func (m mockNewsStore) DeleteByID(_ uuid.UUID) error {
+	if m.errState {
+		return errors.New("some error")
+	}
+	return nil
+}
+
+func (m mockNewsStore) UpdateByID(_ handler.NewsPostReqBody) error {
+	if m.errState {
+		return errors.New("some error")
+	}
+	return nil
 }

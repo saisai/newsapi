@@ -17,6 +17,6 @@ func main() {
 	log.Info("server starting on port 8080")
 
 	if err := http.ListenAndServe(":8080", wrappedRouter); err != nil {
-		log.Error("failed to start server: ", err)
+		log.Error("failed to start server: ", "error", err)
 	}
 }

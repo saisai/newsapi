@@ -1,0 +1,7 @@
+curl -X POST \
+-H "Content-Type: application/json" \
+-d '{ "id" : "3b082d9d-1dc7-4d1f-907e-50d449a03d45", "author": "code learn", "title": "first news", "summary": "first news post", "created_at": "2024-04-07T05:13:27+00:00", 
+"source": "https://example.com", "tags": ["test"] }' \
+localhost:8080/news
+
+curl -X GET localhost:8080/news

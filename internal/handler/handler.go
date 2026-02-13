@@ -6,19 +6,20 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/saisai/newsapi/internal/logger"
+	"github.com/saisai/newsapi/internal/store"
 )
 
 type NewsStorer interface {
 	// Create news from post request body.
-	Create(NewsPostReqBody) (NewsPostReqBody, error)
+	Create(store.News) (store.News, error)
 	// FindByID news by its ID.
-	FindByID(uuid.UUID) (NewsPostReqBody, error)
+	FindByID(uuid.UUID) (store.News, error)
 	// FindAll returns all news in the store.
-	FindAll() ([]NewsPostReqBody, error)
+	FindAll() ([]store.News, error)
 	// DeleteByID deletes a news item by its ID.
 	DeleteByID(uuid.UUID) error
 	// UpdateByID updates a new resource by its ID.
-	UpdateByID(NewsPostReqBody) error
+	UpdateByID(store.News) error
 }
 
 func PostNews(ns NewsStorer) http.HandlerFunc {
@@ -33,14 +34,15 @@ func PostNews(ns NewsStorer) http.HandlerFunc {
 			return
 		}
 
-		if err := newsRequestBody.Validate(); err != nil {
+		n, err := newsRequestBody.Validate()
+		if err != nil {
 			logger.Error("request validation failed", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
 		}
 
-		if _, err := ns.Create(newsRequestBody); err != nil {
+		if _, err := ns.Create(n); err != nil {
 			logger.Error("error creating newws", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -107,14 +109,15 @@ func UpdateNewsByID(ns NewsStorer) http.HandlerFunc {
 			return
 		}
 
-		if err := newsRequestBody.Validate(); err != nil {
+		n, err := newsRequestBody.Validate()
+		if err != nil {
 			logger.Error("request validation failed", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
 			return
 		}
 
-		if err := ns.UpdateByID(newsRequestBody); err != nil {
+		if err := ns.UpdateByID(n); err != nil {
 			logger.Error("error updating news", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return

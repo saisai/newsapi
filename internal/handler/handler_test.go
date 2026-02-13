@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/saisai/newsapi/internal/handler"
+	"github.com/saisai/newsapi/internal/store"
 )
 
 func Test_PostNews(t *testing.T) {
@@ -292,14 +293,21 @@ type mockNewsStore struct {
 	errState bool
 }
 
-func (m mockNewsStore) Create(_ handler.NewsPostReqBody) (news handler.NewsPostReqBody, err error) {
+func (m mockNewsStore) Create(_ store.News) (news store.News, err error) {
 	if m.errState {
 		return news, errors.New("some error")
 	}
 	return news, nil
 }
 
-func (m mockNewsStore) FindByID(_ uuid.UUID) (news handler.NewsPostReqBody, err error) {
+func (m mockNewsStore) FindAll() (news []store.News, err error) {
+	if m.errState {
+		return news, errors.New("some error")
+	}
+	return news, nil
+}
+
+func (m mockNewsStore) FindByID(_ uuid.UUID) (news store.News, err error) {
 	if m.errState {
 		return news, errors.New("some error")
 	}
@@ -313,7 +321,7 @@ func (m mockNewsStore) DeleteByID(_ uuid.UUID) error {
 	return nil
 }
 
-func (m mockNewsStore) UpdateByID(_ handler.NewsPostReqBody) error {
+func (m mockNewsStore) UpdateByID(_ store.News) error {
 	if m.errState {
 		return errors.New("some error")
 	}

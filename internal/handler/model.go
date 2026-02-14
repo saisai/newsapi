@@ -30,6 +30,10 @@ func (n NewsPostReqBody) Validate() (news store.News, errs error) {
 		errs = errors.Join(errs, fmt.Errorf("title is empty: %v", n.Title))
 	}
 
+	if n.Content == "" {
+		errs = errors.Join(errs, fmt.Errorf("content is empty: %v", n.Content))
+	}
+
 	if n.Summary == "" {
 		errs = errors.Join(errs, fmt.Errorf("summary is empty: %v", n.Summary))
 	}
@@ -60,6 +64,7 @@ func (n NewsPostReqBody) Validate() (news store.News, errs error) {
 		ID:        n.ID,
 		Author:    n.Author,
 		Title:     n.Title,
+		Content:   n.Content,
 		Summary:   n.Summary,
 		CreatedAt: t,
 		Source:    url,

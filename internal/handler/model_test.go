@@ -4,25 +4,26 @@ import (
 	"testing"
 
 	"github.com/saisai/newsapi/internal/handler"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewsPostReqBody_Validate(t *testing.T) {
 	testCases := []struct {
 		name        string
 		req         handler.NewsPostReqBody
-		expectedErr bool
+		expectedErr string
 	}{
 		{
 			name:        "author empty",
 			req:         handler.NewsPostReqBody{},
-			expectedErr: true,
+			expectedErr: "author is empty",
 		},
 		{
 			name: "title empty",
 			req: handler.NewsPostReqBody{
 				Author: "test-author",
 			},
-			expectedErr: true,
+			expectedErr: "title is empty",
 		},
 		{
 			name: "summary empty",
@@ -30,7 +31,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 				Author: "test-author",
 				Title:  "test-title",
 			},
-			expectedErr: true,
+			expectedErr: "summary is empty",
 		},
 		{
 			name: "time invalid",
@@ -40,7 +41,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 				Summary:   "test-summary",
 				CreatedAt: "invalid",
 			},
-			expectedErr: true,
+			expectedErr: `parsing time "invalid"`,
 		},
 		{
 			name: "source invalid",
@@ -50,7 +51,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 				Summary:   "test-summary",
 				CreatedAt: "2024-04-07T05:13:27+00:00",
 			},
-			expectedErr: true,
+			expectedErr: "source is empty",
 		},
 		{
 			name: "tags empty",
@@ -61,7 +62,7 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 				CreatedAt: "2024-04-07T05:13:27+00:00",
 				Source:    "https://test-news.com",
 			},
-			expectedErr: true,
+			expectedErr: "tags cannot be empty",
 		},
 		{
 			name: "validate",
@@ -80,11 +81,11 @@ func TestNewsPostReqBody_Validate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			_, err := tc.req.Validate()
 
-			if tc.expectedErr && err == nil {
-				t.Fatalf("expected error but got nil")
-			}
-			if !tc.expectedErr && err != nil {
-				t.Fatalf("expected nil but got error: %v", err)
+			if tc.expectedErr != "" {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), tc.expectedErr)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

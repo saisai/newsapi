@@ -4,15 +4,39 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"testing"
 	"time"
 
 	"github.com/docker/go-connections/nat"
+	"github.com/saisai/newsapi/internal/news"
 	"github.com/saisai/newsapi/internal/postgres"
 	"github.com/testcontainers/testcontainers-go"
 	pgtc "github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"github.com/uptrace/bun"
 )
+
+var db *bun.DB
+
+func TestMain(m *testing.M) {
+	ctx := context.Background()
+	pdb, cf, err := createTestDB(ctx)
+	if err != nil {
+		panic(err)
+	}
+	db = pdb
+	code := m.Run()
+
+	if err := cf(ctx); err != nil {
+		panic(err)
+	}
+
+	os.Exit(code)
+}
+
+func TestStore_Create(t *testing.T) {
+	news.NewStore(db)
+}
 
 func createTestContainer(ctx context.Context) (ctr *pgtc.PostgresContainer, err error) {
 	wd, err := os.Getwd()
